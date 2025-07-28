@@ -1,55 +1,74 @@
 #include <iostream>
+#include <string>
 using namespace std;
 
 int main() {
-    cout << "Skriv in ett heltal: ";
-    int input;
-    cin >> input;
-    cout << "Du skrev in talet: " << input << "\n" << endl;
+    int i;
+    float f;
+    char c;
+    string s;
 
-    // TODO: Add flush
-    
-    cout << "Skriv en fem decimaltal: ";
-    float inputs[5];
-    for(int i = 0; i < 5; i++) {
-        cin >> inputs[i];
-    }
+    cout << "Skriv in ett heltal: " << flush;
+    cin >> i;
+    while (cin.get() != '\n');
+    cout << "Du skrev in talet: " << i << "\n" << endl;
 
-    // TODO: Add flush
-
-    cout << "Du skrev in talen: ";
-    for(int i = 0; i < 5; i++) {
-        cout << inputs[i] << " ";
+    cout << "Skriv in fem decimaltal: " << flush;
+    for (int j = 0; j < 5; ++j) {
+        cin >> f;
+        cout << f << " ";
     }
     cout << "\n";
+    while (cin.get() != '\n');
 
-    cout << "Skriv in ett heltal och ett flyttal: ";
-    cout << "Du skrev in heltalet: ";
-    cout << "Du skrev in flyttalet: ";
+    cout << "Skriv in ett heltal och ett flyttal: " << flush;
+    cin >> i >> f;
+    while (cin.get() != '\n');
+    cout << "Du skrev in heltalet: " << i << "\n";
+    cout << "Du skrev in flyttalet: " << f << "\n";
 
-    cout << "Skriv in ett flyttal och ett heltal:  ";
-    cout << "Du skrev in heltalet: ";
-    cout << "Du skrev in flyttalet: ";
+    cout << "Skriv in ett flyttal och ett heltal:  " << flush;
+    cin >> f >> i;
+    while (cin.get() != '\n');
+    cout << "Du skrev in heltalet: " << i << "\n";
+    cout << "Du skrev in flyttalet: " << f << "\n";
 
-    cout << "Skriv in ett tecken:  ";
-    cout << "Du skrev in tecknet: ";
+    cout << "Skriv in ett tecken:  " << flush;
+    cin >> c;
+    while (cin.get() != '\n');
+    cout << "Du skrev in tecknet: " << c << "\n";
 
-    cout << "Skriv in ett ord: ";
-    cout << "Du skrev in ordet: ";
+    cout << "Skriv in ett ord: " << flush;
+    cin >> s;
+    while (cin.get() != '\n');
+    cout << "Du skrev in ordet: " << s << "\n";
 
-    cout << "Skriv in ett heltal och ett ord: ";
-    cout << "Du skrev in talet  och ordet ";
+    cout << "Skriv in ett heltal och ett ord: " << flush;
+    cin >> i >> s;
+    while (cin.get() != '\n');
+    cout << "Du skrev in talet " << i << " och ordet " << s << "\n";
 
-    cout << "Skriv in ett tecken och ett ord:  ";
-    cout << "Du skrev in  och ";
+    cout << "Skriv in ett tecken och ett ord:  " << flush;
+    cin >> c >> s;
+    while (cin.get() != '\n');
+    cout << "Du skrev in " << c << " och " << s << "\n";
 
-    cout << "Skrev in en rad text:  ";
-    cout << "Du skrev in:  ";
+    cout << "Skrev in en rad text:  " << flush;
+    getline(cin, s);
+    cout << "Du skrev in: " << s << "\n";
 
-    cout << "Skrev in en till rad text:  ";
-    cout << "Du skrev in: ";
+    cout << "Skrev in en till rad text:  " << flush;
+    getline(cin, s);
+    cout << "Du skrev in: " << s << "\n";
 
-    cout << "Skriv in tre ord:  ";
-    cout << "Du skrev in: ";
+    cout << "Skriv in tre ord:  " << flush;
+    cin >> s;
+    cout << s << " ";
+    cin >> s;
+    cout << s << " ";
+    cin >> s;
+    cout << s << "\n";
+    while (cin.get() != '\n');
+
+    return 0;
 }
-
