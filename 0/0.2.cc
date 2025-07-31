@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -6,8 +7,17 @@
 
 using namespace std;
 
+struct Racer {
+	string name;
+	int hours;
+	int minutes;
+	int seconds;
+
+	Racer() : name(""), hours(0), minutes(0), seconds(0) {}
+};
+
 const vector<string> split(const string& input) {
-string product;
+	string product;
 	char del(' ');
 	vector<string> output;
 
@@ -23,10 +33,21 @@ string product;
 	return output;
 }
 
+void printCentered(const std::string& text, int width) {
+    int total_pad = width - text.size();
+    int left_pad = total_pad / 2;
+    int right_pad = total_pad - left_pad;
+
+    if (total_pad > 0)
+        std::cout << std::string(left_pad, ' ') << text << std::string(right_pad, ' ');
+    else
+        std::cout << text;
+}
+
 int main() {
 	// Default file and rows
 	string target_file = "UPPloppet_resultat.txt";
-	int rows = 5;
+	size_t rows = 5;
 
 	// cout << "Antal rader: " << target_file << endl;
 	// getline(cin, target_file);
@@ -39,13 +60,6 @@ int main() {
 		cerr << "Failed to open file\n" << endl;
 		return 1;
 	}
-
-	struct Racer {
-			string name;
-			int hours;
-			int minutes;
-			int seconds;
-	};
 
 	string line;
 	vector<Racer> data;
@@ -65,12 +79,20 @@ int main() {
 		[](Racer a, Racer b){
 			int a_total = a.hours * 60 * 60 + a.minutes * 60 + a.seconds;
 			int b_total = b.hours * 60 * 60 + b.minutes * 60 + b.seconds;
-			return a_total > b_total;
+			return a_total < b_total;
 		});
 
-	for (Racer racer : data) {
-			int total = racer.hours * 60 * 60 + racer.minutes * 60 + racer.seconds;
-			cout << total << endl;
+	printCentered("Namn", 10);
+	cout << "|";
+	printCentered("Tid", 10);
+	cout << "\n" << setfill('=') << setw(20) << "" << "\n";
+	for (size_t i = 0; i < rows && i < data.size(); ++i) {
+		Racer& racer = data[i];
+		cout << setfill(' ') << setw(9) << right << racer.name << " ";
+		cout << "|";
+		cout << setw(2) << racer.hours << ":"
+			 << setfill('0') << setw(2) << racer.minutes << ":"
+			 << setfill('0') << setw(2) << racer.seconds;
+		cout << "\n";
 	}
-
 }
