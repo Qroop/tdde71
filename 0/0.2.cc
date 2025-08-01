@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -22,10 +23,10 @@ const vector<string> split(const string& input) {
 	vector<string> output;
 
 	for (char c : input) {
-			if(c == del) {
-					output.push_back(product);
-					product = "";
-			}
+		if(c == del) {
+			output.push_back(product);
+			product = "";
+		}
 
 			product.push_back(c);
 	}
@@ -45,20 +46,17 @@ void printCentered(const std::string& text, int width) {
 }
 
 int main() {
-	// Default file and rows
+file:
 	string target_file = "UPPloppet_resultat.txt";
-	size_t rows = 5;
 
-	// cout << "Antal rader: " << target_file << endl;
-	// getline(cin, target_file);
-	// cout << "Antal rader: ";
-	// cin >> rows;
+	cout << "Ange filnamn: ";
+	getline(cin, target_file);
 
 	ifstream file(target_file);
 
 	if (!file.is_open()) {
-		cerr << "Failed to open file\n" << endl;
-		return 1;
+		cerr << "FEL: Filen gick inte att öppna!" << endl;
+		goto file;
 	}
 
 	string line;
@@ -75,6 +73,23 @@ int main() {
 	}
 	file.close();
 
+rows:
+	int rows;
+	cout << "Antal rader: ";
+
+	while(!(cin >> rows)) {
+		cerr << "FEL: Inmatningen måste vara ett heltal!" << endl;
+		cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		goto rows;
+	}
+
+	if(data.size() < size_t(rows)) {
+		cerr << "FEL: Det finns inte " << rows << " rader i filen!" << endl;
+		cin.clear();
+		goto rows;
+	}
+
 	sort(data.begin(), data.end(), 
 		[](Racer a, Racer b){
 			int a_total = a.hours * 60 * 60 + a.minutes * 60 + a.seconds;
@@ -86,7 +101,7 @@ int main() {
 	cout << "|";
 	printCentered("Tid", 10);
 	cout << "\n" << setfill('=') << setw(20) << "" << "\n";
-	for (size_t i = 0; i < rows && i < data.size(); ++i) {
+	for (size_t i = 0; i < size_t(rows) && i < data.size(); ++i) {
 		Racer& racer = data[i];
 		cout << setfill(' ') << setw(9) << right << racer.name << " ";
 		cout << "|";
