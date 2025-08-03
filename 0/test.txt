@@ -1,0 +1,11 @@
+10.3
+-12 10330 27 13 11 fem
+3267 3.141592 d
+67 3.141592
+Tomas
+123Kalle
+12är det lunch
+oklart
+ här skriver vi lite mer
+lite mera text här
+Testar ett program
