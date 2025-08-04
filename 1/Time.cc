@@ -2,12 +2,12 @@
 #include <regex> 
 
 Time::Time()
-	: total_seconds(0)
+	: hours(0), minutes(0), seconds(0)
 {}
 
 Time::Time(const size_t hour, const size_t minute, const size_t second)
-    : total_seconds([&] {
-	if (hour > 23){
+	: hours(hour), minutes(minute), seconds(second) {
+	if (hour > 23) {
 		throw std::invalid_argument("Invalid hour value. Must be between 00 and 23.");
 	}
 	if (minute > 59) {
@@ -16,24 +16,48 @@ Time::Time(const size_t hour, const size_t minute, const size_t second)
 	if (second > 59) {
 		throw std::invalid_argument("Invalid second value. Must be between 00 and 59.");
 	}
-	return hour * 3600 + minute * 60 + second;
-    }())
-{}
+}
 
-Time::Time(const std::string& time_str)
-	: total_seconds([&] {
+size_t parse_hour(const std::string& time_str) {
 	if (time_str.empty()) {
 		throw std::invalid_argument("Time string cannot be empty.");
 	}
-	std::regex time_regex("^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$");
-	if (!std::regex_match(time_str, time_regex)) {
+	std::regex hour_regex("^([01]\\d|2[0-3]):");
+	std::smatch match;
+	if (!std::regex_search(time_str, match, hour_regex)) {
 		throw std::invalid_argument("Time string must be in the format HH:MM:SS.");
 	}
-	int hour = std::stoi(time_str.substr(0, 2));
-	int minute = std::stoi(time_str.substr(3, 2));
-	int second = std::stoi(time_str.substr(6, 2));
-	return hour * 3600 + minute * 60 + second;
-	}())
+	return std::stoi(match.str(1));
+}
+
+size_t parse_minute(const std::string& time_str) {
+	if (time_str.empty()) {
+		throw std::invalid_argument("Time string cannot be empty.");
+	}
+	std::regex minute_regex(":([0-5]\\d):");
+	std::smatch match;
+	if (!std::regex_search(time_str, match, minute_regex)) {
+		throw std::invalid_argument("Time string must be in the format HH:MM:SS.");
+	}
+	return std::stoi(match.str(1));
+}
+
+size_t parese_second(const std::string& time_str) {
+	if (time_str.empty()) {
+		throw std::invalid_argument("Time string cannot be empty.");
+	}
+	std::regex second_regex(":([0-5]\\d)$");
+	std::smatch match;
+	if (!std::regex_search(time_str, match, second_regex)) {
+		throw std::invalid_argument("Time string must be in the format HH:MM:SS.");
+	}
+	return std::stoi(match.str(1));
+}
+
+Time::Time(const std::string& time_str) 
+	:	hours(parse_hour(time_str)),
+		minutes(parse_minute(time_str)),
+		seconds(parese_second(time_str)) 
 {}
 
 std::string Time::to_string(const bool& twelve_h) const {
@@ -68,15 +92,15 @@ bool Time::is_am() const {
 }
 
 int Time::get_hour() const {
-	return total_seconds / 3600;
+	return hours;
 }
 
 int Time::get_minute() const {
-	return (total_seconds % 3600) / 60;
+	return minutes;
 }
 
 int Time::get_second() const {
-	return total_seconds % 60;
+	return seconds;
 }
 
 

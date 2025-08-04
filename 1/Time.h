@@ -19,5 +19,7 @@ public:
 	int get_second() const;
 
 private:
-	const size_t total_seconds;
+	const size_t hours;
+	const size_t minutes;
+	const size_t seconds;
 };
