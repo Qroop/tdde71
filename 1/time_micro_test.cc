@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "Time.h"
+#include "TimeMicro.h"
 
 using namespace std;
 
@@ -7,7 +7,7 @@ TEST_CASE ("Constructors and getters")
 {
    SECTION("Default")
    {
-      Time empty{};
+      TimeMicro empty{};
       CHECK( empty.get_hour()   == 0 );
       CHECK( empty.get_minute() == 0 );
       CHECK( empty.get_second() == 0 );
@@ -15,13 +15,13 @@ TEST_CASE ("Constructors and getters")
 
    SECTION("Integer")
    {
-      Time t0{0,0,0};
-      Time t1{12,30,30};
-      Time t2{23,59,59};
+      TimeMicro t0{0,0,0};
+      TimeMicro t1{12,30,30};
+      TimeMicro t2{23,59,59};
 
-      CHECK_THROWS( Time{13,35,60} );
-      CHECK_THROWS( Time{13,60,35} );
-      CHECK_THROWS( Time{24,35,35} );
+      CHECK_THROWS( TimeMicro{13,35,60} );
+      CHECK_THROWS( TimeMicro{13,60,35} );
+      CHECK_THROWS( TimeMicro{24,35,35} );
              
       CHECK( t0.get_hour()   == 0 );
       CHECK( t0.get_minute() == 0 );
@@ -36,13 +36,13 @@ TEST_CASE ("Constructors and getters")
 
    SECTION("String")
    {
-      Time t0{"00:00:00"};
-      Time t1{"12:30:30"};
-      Time t2{"23:59:59"};
+      TimeMicro t0{"00:00:00"};
+      TimeMicro t1{"12:30:30"};
+      TimeMicro t2{"23:59:59"};
 
-      CHECK_THROWS( Time{"13:35:60"} );
-      CHECK_THROWS( Time{"13:60:35"} );
-      CHECK_THROWS( Time{"24:35:35"} );
+      CHECK_THROWS( TimeMicro{"13:35:60"} );
+      CHECK_THROWS( TimeMicro{"13:60:35"} );
+      CHECK_THROWS( TimeMicro{"24:35:35"} );
 
       CHECK( t0.get_hour()   == 0 );
       CHECK( t0.get_minute() == 0 );
@@ -57,23 +57,23 @@ TEST_CASE ("Constructors and getters")
 }
 TEST_CASE ("is_am") 
 {
-   Time t0{"05:00:00"};
-   Time t1{"14:00:00"};
+   TimeMicro t0{"05:00:00"};
+   TimeMicro t1{"14:00:00"};
    CHECK       ( t0.is_am() );
    CHECK_FALSE ( t1.is_am() );
-   CHECK       ( Time{"00:00:00"}.is_am() );   
-   CHECK_FALSE ( Time{"12:00:00"}.is_am() );   
-   CHECK_FALSE ( Time{"23:59:59"}.is_am() );   
-   CHECK       ( Time{"11:59:59"}.is_am() );   
+   CHECK       ( TimeMicro{"00:00:00"}.is_am() );   
+   CHECK_FALSE ( TimeMicro{"12:00:00"}.is_am() );   
+   CHECK_FALSE ( TimeMicro{"23:59:59"}.is_am() );   
+   CHECK       ( TimeMicro{"11:59:59"}.is_am() );   
 }
 
 TEST_CASE ("to_string")
 {
-   Time t0{};
-   Time t1{11, 59, 59};
-   Time t2{12, 0, 0};
-   Time t3{13, 0, 0};
-   Time t4{23, 59, 59};
+   TimeMicro t0{};
+   TimeMicro t1{11, 59, 59};
+   TimeMicro t2{12, 0, 0};
+   TimeMicro t3{13, 0, 0};
+   TimeMicro t4{23, 59, 59};
    SECTION("24 hour format no argument")
    {
       CHECK( t0.to_string() == "00:00:00" );
@@ -81,8 +81,8 @@ TEST_CASE ("to_string")
       CHECK( t2.to_string() == "12:00:00" );
       CHECK( t3.to_string() == "13:00:00" );
       CHECK( t4.to_string() == "23:59:59" );
-      CHECK( Time{0,0,1}.to_string() == "00:00:01" );
-      CHECK( Time{9,5,7}.to_string() == "09:05:07" );
+      CHECK( TimeMicro{0,0,1}.to_string() == "00:00:01" );
+      CHECK( TimeMicro{9,5,7}.to_string() == "09:05:07" );
    }
    
    SECTION("24 hour format with argument")
@@ -92,7 +92,7 @@ TEST_CASE ("to_string")
       CHECK( t2.to_string(false) == "12:00:00" );
       CHECK( t3.to_string(false) == "13:00:00" );
       CHECK( t4.to_string(false) == "23:59:59" );
-      CHECK( Time{1,2,3}.to_string(false) == "01:02:03" );
+      CHECK( TimeMicro{1,2,3}.to_string(false) == "01:02:03" );
    } 
 
    SECTION("12 hour format")
@@ -102,18 +102,18 @@ TEST_CASE ("to_string")
       CHECK( t2.to_string(true) == "12:00:00pm" );
       CHECK( t3.to_string(true) == "1:00:00pm" );
       CHECK( t4.to_string(true) == "11:59:59pm" );
-      CHECK( Time{0,0,1}.to_string(true) == "12:00:01am" );
-      CHECK( Time{12,1,1}.to_string(true) == "12:01:01pm" );
-      CHECK( Time{1,2,3}.to_string(true) == "1:02:03am" );
+      CHECK( TimeMicro{0,0,1}.to_string(true) == "12:00:01am" );
+      CHECK( TimeMicro{12,1,1}.to_string(true) == "12:01:01pm" );
+      CHECK( TimeMicro{1,2,3}.to_string(true) == "1:02:03am" );
    }
 }
 
 TEST_CASE("operators") {
 	SECTION("comparison") {
-		Time t0{12, 30, 30};
-		Time t1{12, 30, 30};
-		Time t2{23, 59, 59};
-		Time t3{23, 59, 58};
+		TimeMicro t0{12, 30, 30};
+		TimeMicro t1{12, 30, 30};
+		TimeMicro t2{23, 59, 59};
+		TimeMicro t3{23, 59, 58};
 
 		CHECK( t0 == t1 );
 		CHECK( t0 != t2 );
@@ -128,8 +128,8 @@ TEST_CASE("operators") {
 
 	}
 	SECTION("increment/decrement") {
-		Time t0{12, 30, 30};
-		Time t1{23, 59, 59};
+		TimeMicro t0{12, 30, 30};
+		TimeMicro t1{23, 59, 59};
 
 		CHECK( (t0++).to_string() == "12:30:30" );
 		CHECK( t0.to_string() == "12:30:31" );
@@ -144,7 +144,7 @@ TEST_CASE("operators") {
 		CHECK( t1.to_string() == "23:59:57" );
 
 		// Wrap around tests
-		Time t2{23, 59, 59};
+		TimeMicro t2{23, 59, 59};
 		CHECK( (++t2).to_string() == "00:00:00" );
 		CHECK( t2.to_string() == "00:00:00" );
 	}
