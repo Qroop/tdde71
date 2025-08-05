@@ -28,6 +28,9 @@ public:
 	bool operator>(const TimeMicro& other) const;
 	bool operator>=(const TimeMicro& other) const;
 
+	// Arithmetic operators
+	float operator-(const TimeMicro& other) const;
+
 	// Stream operators
 
 	bool is_am() const;
