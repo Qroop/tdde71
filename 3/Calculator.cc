@@ -25,14 +25,9 @@ Expression& Expression::operator=(const Expression& other) {
 	return *this;
 }
 
-// Real implementation
 Real::Real() : value(0.0) {}
 
 Real::Real(const double value) : value(value) {}
-
-double Real::get_value() const {
-	return value;
-}
 
 std::string Real::toString() const {
 	return std::to_string(value);
@@ -46,10 +41,6 @@ double Real::evaluate() const {
 Integer::Integer() : value(0) {}
 
 Integer::Integer(const int value) : value(value) {}
-
-int Integer::get_value() const {
-	return value;
-}
 
 std::string Integer::toString() const {
 	return std::to_string(value);

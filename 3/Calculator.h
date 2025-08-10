@@ -20,6 +20,8 @@ public:
 	virtual ~Node() = default;
 	virtual std::string toString() const = 0;
 	virtual double evaluate() const = 0;
+protected:
+	Node() = default;
 };
 
 // Operands
@@ -33,7 +35,6 @@ public:
 	Real();
 	Real(const double value);
 	
-	double get_value() const;
 	std::string toString() const override;
 	double evaluate() const override;
 private:
@@ -45,7 +46,6 @@ public:
 	Integer();
 	Integer(const int value);
 
-	int get_value() const;
 	std::string toString() const override;
 	double evaluate() const override;
 private:
