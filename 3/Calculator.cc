@@ -1,36 +1,29 @@
 #include "Calculator.h"
+#include <stdexcept>
 #include <string>
 #include <cmath>
+#include <iomanip> 
 
-Expression::Expression(std::string expr) : expression(std::move(expr)), rootNode(nullptr) {
-	// Here you would typically parse the expression and build the rootNode
-	// For now, we leave it uninitialized
+// Operands
+std::string Operand::postfix() const {
+	return this->to_string();
 }
 
-Expression::~Expression() {
-	delete rootNode;
+std::string Operand::infix() const {
+	return this->to_string();
 }
 
-Expression::Expression(const Expression& other) : expression(other.expression), rootNode(nullptr) {
-	// For now, we don't copy the rootNode (would need deep copy implementation)
-	// This is a simplified implementation
+std::string Operand::prefix() const {
+	return this->to_string();
 }
 
-Expression& Expression::operator=(const Expression& other) {
-	if (this != &other) {
-		delete rootNode;
-		expression = other.expression;
-		rootNode = nullptr; // Simplified - would need deep copy in real implementation
-	}
-	return *this;
-}
-
-Real::Real() : value(0.0) {}
-
+// Real
 Real::Real(const double value) : value(value) {}
 
-std::string Real::toString() const {
-	return std::to_string(value);
+std::string Real::to_string() const {
+	std::ostringstream output;
+	output << std::fixed << std::setprecision(3) << this->value;
+	return output.str();
 }
 
 double Real::evaluate() const {
@@ -42,8 +35,10 @@ Integer::Integer() : value(0) {}
 
 Integer::Integer(const int value) : value(value) {}
 
-std::string Integer::toString() const {
-	return std::to_string(value);
+std::string Integer::to_string() const {
+	std::ostringstream output;
+	output << this->value;
+	return output.str();
 }
 
 double Integer::evaluate() const {
@@ -51,76 +46,106 @@ double Integer::evaluate() const {
 }
 
 // Operator implementations
-Operator::Operator(Node* left, Node* right) : left(left), right(right) {}
+Operator::Operator(Node* left, Node* right, const std::string& op) 
+    : left(left), right(right), op(op) {}
 
 Operator::~Operator() {
 	delete left;
 	delete right;
 }
 
-// Addition
-Addition::Addition(Node* left, Node* right) : Operator(left, right) {}
-
-std::string Addition::toString() const {
-	return "(" + left->toString() + " + " + right->toString() + ")";
+void Operator::add_lhs(Node* new_left) {
+	if (!new_left) {
+		throw std::logic_error("Left operand cannot be null");
+	}
+	if (left != new_left) {
+		delete left;
+		left = new_left;
+	}
 }
+
+void Operator::add_rhs(Node* new_right) {
+	if (!new_right) {
+		throw std::logic_error("Right operand cannot be null");
+	}
+	if (right != new_right) {
+		delete right;
+		right = new_right;
+	}
+}
+
+std::string Operator::to_string() const {
+	return "(" + left->to_string() + " " + op + " " + right->to_string() + ")";
+}
+
+std::string Operator::prefix() const {
+	std::ostringstream output;
+	output << op << " " << left->prefix() << " " << right->prefix();
+	return output.str();
+}
+
+std::string Operator::infix() const {
+	std::ostringstream output;
+	output << "( " << left->infix() << " " << op << " " << right->infix() << " )";
+	return output.str();
+}
+
+std::string Operator::postfix() const {
+	std::ostringstream output;
+	output << left->postfix() << " " << right->postfix() << " " << op;
+	return output.str();
+}
+
+// Addition
+Addition::Addition(Node* left, Node* right) : Operator(left, right, "+") {}
 
 double Addition::evaluate() const {
 	return left->evaluate() + right->evaluate();
 }
 
 // Subtraction
-Subtraction::Subtraction(Node* left, Node* right) : Operator(left, right) {}
-
-std::string Subtraction::toString() const {
-	return "(" + left->toString() + " - " + right->toString() + ")";
-}
+Subtraction::Subtraction(Node* left, Node* right) : Operator(left, right, "-") {}
 
 double Subtraction::evaluate() const {
 	return left->evaluate() - right->evaluate();
 }
 
 // Multiplication
-Multiplication::Multiplication(Node* left, Node* right) : Operator(left, right) {}
-
-std::string Multiplication::toString() const {
-	return "(" + left->toString() + " * " + right->toString() + ")";
-}
+Multiplication::Multiplication(Node* left, Node* right) : Operator(left, right, "*") {}
 
 double Multiplication::evaluate() const {
 	return left->evaluate() * right->evaluate();
 }
 
 // Division
-Division::Division(Node* left, Node* right) : Operator(left, right) {}
-
-std::string Division::toString() const {
-	return "(" + left->toString() + " / " + right->toString() + ")";
-}
+Division::Division(Node* left, Node* right) : Operator(left, right, "/") {}
 
 double Division::evaluate() const {
+	if (right->evaluate() == 0) {
+		throw std::logic_error("Division by zero");
+	}
 	return left->evaluate() / right->evaluate();
 }
 
 // Modulus
-Modulus::Modulus(Node* left, Node* right) : Operator(left, right) {}
-
-std::string Modulus::toString() const {
-	return "(" + left->toString() + " % " + right->toString() + ")";
-}
+Modulus::Modulus(Node* left, Node* right) : Operator(left, right, "%") {}
 
 double Modulus::evaluate() const {
 	return std::fmod(left->evaluate(), right->evaluate());
 }
 
 // Power
-Power::Power(Node* left, Node* right) : Operator(left, right) {}
-
-std::string Power::toString() const {
-	return "(" + left->toString() + " ^ " + right->toString() + ")";
-}
+Power::Power(Node* left, Node* right) : Operator(left, right, "^") {}
 
 double Power::evaluate() const {
+	if (left->evaluate() < 0 && right->evaluate() != static_cast<int>(right->evaluate())) {
+		throw std::logic_error("Negative base with non-integer exponent");
+	}
+
+	if (left->evaluate() == 0 && right->evaluate() <= 0) {
+		throw std::logic_error("Zero base with non-positive exponent");
+	}
+
 	return std::pow(left->evaluate(), right->evaluate());
 }
 
