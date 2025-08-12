@@ -10,6 +10,7 @@ int main()
 	while ( getline(cin, line) ) {
 		if ( line.front() != ':' ) {
 			e.parse_expression(line); // Update the expression with the new input
+			e.set_mode(Expression::mode::INFIX);
 			continue;
 		}
 
