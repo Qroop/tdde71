@@ -13,8 +13,8 @@ public:
 	Expression();
 	Expression(const std::string& expr, mode m = mode::INFIX);
 	~Expression();
-	Expression(const Expression& other);
-	Expression& operator=(const Expression& other);
+	Expression(const Expression&) = delete;
+	Expression& operator=(const Expression&) = delete;
 
 	void parse_expression(const std::string& expr);
 

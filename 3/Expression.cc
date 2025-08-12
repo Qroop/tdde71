@@ -23,20 +23,6 @@ Expression::~Expression() {
 	delete rootNode;
 }
 
-Expression::Expression(const Expression& other) : rootNode(nullptr), curr_mode(other.curr_mode) {
-	// For now, we don't copy the rootNode (would need deep copy implementation)
-	// This is a simplified implementation
-}
-
-Expression& Expression::operator=(const Expression& other) {
-	if (this != &other) {
-		delete rootNode;
-		rootNode = nullptr; // Simplified - would need deep copy in real implementation
-		curr_mode = other.curr_mode;
-	}
-	return *this;
-}
-
 std::string Expression::to_string() const {
 	if (rootNode) {
 		return rootNode->to_string();
@@ -88,54 +74,64 @@ void Expression::parse_infix(const std::string& expr) {
 }
 
 void Expression::parse_postfix(const std::string& expr) {
-	// Build expression tree directly from postfix tokens
+
 	std::istringstream stream(expr);
 	std::string token;
 	std::stack<Node*> nodes;
 
-	while (stream >> token) {
-		if ( std::all_of( begin(token), end(token), ::isdigit ) ) {
-			nodes.push(new Integer(std::stoi(token)));
-		}
-		else if ( isdigit(token.at(0)) ) {
-			nodes.push(new Real(std::stod(token)));
-		}
-		else if ( isalpha(token.at(0)) ) {
-			// Variable names could be handled here (currently ignored)
-		}
-		else {
-			if (nodes.size() < 2) {
-				throw std::logic_error("Not enough operands for operator: " + token);
+	try {
+		while (stream >> token) {
+			if ( std::all_of( begin(token), end(token), ::isdigit ) ) {
+				nodes.push(new Integer(std::stoi(token)));
 			}
-			Node* right = nodes.top(); nodes.pop();
-			Node* left = nodes.top(); nodes.pop();
-			if (token == "+") {
-				nodes.push(new Addition(left, right));
-			} else if (token == "-") {
-				nodes.push(new Subtraction(left, right));
-			} else if (token == "*") {
-				nodes.push(new Multiplication(left, right));
-			} else if (token == "/") {
-				nodes.push(new Division(left, right));
-			} else if (token == "^") {
-				nodes.push(new Power(left, right));
-			} else if (token == "%") {
-				nodes.push(new Modulus(left, right));
-			} else {
-				throw std::logic_error("Unknown operator: " + token);
+			else if ( isdigit(token.at(0)) ) {
+				nodes.push(new Real(std::stod(token)));
+			}
+			else if ( isalpha(token.at(0)) ) {
+				// Variable names could be handled here (currently ignored)
+			}
+			else {
+				if (nodes.size() < 2) {
+					throw std::logic_error("Not enough operands for operator: " + token);
+				}
+				Node* right = nodes.top(); nodes.pop();
+				Node* left = nodes.top(); nodes.pop();
+				if (token == "+") {
+					nodes.push(new Addition(left, right));
+				} else if (token == "-") {
+					nodes.push(new Subtraction(left, right));
+				} else if (token == "*") {
+					nodes.push(new Multiplication(left, right));
+				} else if (token == "/") {
+					nodes.push(new Division(left, right));
+				} else if (token == "^") {
+					nodes.push(new Power(left, right));
+				} else if (token == "%") {
+					nodes.push(new Modulus(left, right));
+				} else {
+					delete left;
+					delete right;
+					throw std::logic_error("Unknown operator: " + token);
+				}
 			}
 		}
-	}
 
-	if (nodes.empty()) {
-		throw std::logic_error("Invalid expression: no operands found");
+		if (nodes.empty()) {
+			throw std::logic_error("Invalid expression: no operands found");
+		}
+		if (nodes.size() != 1) {
+			throw std::logic_error("Invalid expression: too many operands left after parsing");
+		}
+		// Delete old tree if present
+		delete rootNode;
+		rootNode = nodes.top();
+	} catch (...) {
+		while (!nodes.empty()) {
+			delete nodes.top();
+			nodes.pop();
+		}
+		throw;
 	}
-	if (nodes.size() != 1) {
-		throw std::logic_error("Invalid expression: too many operands left after parsing");
-	}
-	// Delete old tree if present
-	delete rootNode;
-	rootNode = nodes.top();
 }
 
 void Expression::parse_prefix(const std::string& expr) {
