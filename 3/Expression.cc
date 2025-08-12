@@ -57,6 +57,10 @@ void Expression::set_mode(const mode& new_mode) {
 	curr_mode = new_mode;
 }
 
+Expression::mode Expression::get_mode() const {
+	return curr_mode;
+}
+
 void Expression::parse_expression(const std::string& expr) {
 	// Dispatch based on current mode
 	switch (curr_mode) {

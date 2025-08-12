@@ -25,6 +25,7 @@ public:
 	std::string evaluate() const;
 
 	void set_mode(const mode& new_mode);
+	mode get_mode() const;
 private:
 	void parse_infix(const std::string& expr);
 	void parse_postfix(const std::string& expr);
