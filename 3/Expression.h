@@ -13,6 +13,7 @@ public:
 	Expression();
 	Expression(const std::string& expr, mode m = mode::INFIX);
 	~Expression();
+	Expression(Expression&& other);
 	Expression(const Expression&) = delete;
 	Expression& operator=(const Expression&) = delete;
 

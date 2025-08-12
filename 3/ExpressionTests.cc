@@ -61,3 +61,19 @@ TEST_CASE("invalid infix missing operand throws") {
 	CHECK_THROWS_AS(e.parse_expression("3 +"), std::logic_error);
 }
 
+TEST_CASE("move constructor transfers ownership") {
+	Expression e1{"3 4 + 5 *", Expression::mode::POSTFIX};
+	CHECK(e1.to_string() == "((3 + 4) * 5)");
+	CHECK(e1.evaluate() == "35");
+
+	// Move e1 to e2
+	Expression e2(std::move(e1));
+
+	// e2 should now have the state of e1
+	CHECK(e2.to_string() == "((3 + 4) * 5)");
+	CHECK(e2.evaluate() == "35");
+
+	// e1 should be in a valid but empty state
+	CHECK(e1.to_string() == "");
+	CHECK(e1.evaluate() == "0");
+}

@@ -23,6 +23,10 @@ Expression::~Expression() {
 	delete rootNode;
 }
 
+Expression::Expression(Expression&& other) : rootNode(other.rootNode), curr_mode(other.curr_mode) {
+	other.rootNode = nullptr; // Transfer ownership
+}
+
 std::string Expression::to_string() const {
 	if (rootNode) {
 		return rootNode->to_string();
@@ -38,7 +42,6 @@ std::string Expression::evaluate() const {
 
 	double value = rootNode->evaluate();
 
-	// Check if it's essentially an integer
 	if (value == std::floor(value)) {
 		return std::to_string(static_cast<int>(value));
 	} else {
