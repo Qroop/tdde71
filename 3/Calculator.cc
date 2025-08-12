@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include <iomanip> 
+#include <utility>
 
 // Operands
 std::string Operand::postfix() const {
@@ -46,33 +47,29 @@ double Integer::evaluate() const {
 }
 
 // Operator implementations
-Operator::Operator(Node* left, Node* right, const std::string& op) 
-    : left(left), right(right), op(op) {}
-
-Operator::~Operator() {
-	delete left;
-	delete right;
+Operator::Operator(
+	std::unique_ptr<Node> left,
+	std::unique_ptr<Node> right,
+	const std::string& op)
+	: left(nullptr), right(nullptr), op(op)
+{
+	if (!left || !right) {
+		throw std::logic_error("Operator requires both left and right operands");
+	}
+	this->left = std::move(left);
+	this->right = std::move(right);
 }
 
-void Operator::add_lhs(Node* new_left) {
-	if (!new_left) {
-		throw std::logic_error("Left operand cannot be null");
-	}
-	if (left != new_left) {
-		delete left;
-		left = new_left;
-	}
-}
+Operator::Operator(Node* left, Node* right, const std::string& op)
+	: Operator(std::unique_ptr<Node>(left), std::unique_ptr<Node>(right), op) {}
 
-void Operator::add_rhs(Node* new_right) {
-	if (!new_right) {
-		throw std::logic_error("Right operand cannot be null");
-	}
-	if (right != new_right) {
-		delete right;
-		right = new_right;
-	}
-}
+Operator::~Operator() = default;
+
+void Operator::add_lhs(std::unique_ptr<Node> new_left) { left = std::move(new_left); }
+void Operator::add_rhs(std::unique_ptr<Node> new_right) { right = std::move(new_right); }
+void Operator::add_lhs(Node* new_left) { left.reset(new_left); }
+void Operator::add_rhs(Node* new_right) { right.reset(new_right); }
+
 
 std::string Operator::to_string() const {
 	return "(" + left->to_string() + " " + op + " " + right->to_string() + ")";
@@ -97,6 +94,9 @@ std::string Operator::postfix() const {
 }
 
 // Addition
+Addition::Addition(std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Operator(std::move(left), std::move(right), "+") {}
+
 Addition::Addition(Node* left, Node* right) : Operator(left, right, "+") {}
 
 double Addition::evaluate() const {
@@ -104,6 +104,9 @@ double Addition::evaluate() const {
 }
 
 // Subtraction
+Subtraction::Subtraction(std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Operator(std::move(left), std::move(right), "-") {}
+
 Subtraction::Subtraction(Node* left, Node* right) : Operator(left, right, "-") {}
 
 double Subtraction::evaluate() const {
@@ -111,6 +114,9 @@ double Subtraction::evaluate() const {
 }
 
 // Multiplication
+Multiplication::Multiplication(std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Operator(std::move(left), std::move(right), "*") {}
+
 Multiplication::Multiplication(Node* left, Node* right) : Operator(left, right, "*") {}
 
 double Multiplication::evaluate() const {
@@ -118,6 +124,9 @@ double Multiplication::evaluate() const {
 }
 
 // Division
+Division::Division(std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Operator(std::move(left), std::move(right), "/") {}
+
 Division::Division(Node* left, Node* right) : Operator(left, right, "/") {}
 
 double Division::evaluate() const {
@@ -128,6 +137,9 @@ double Division::evaluate() const {
 }
 
 // Modulus
+Modulus::Modulus(std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Operator(std::move(left), std::move(right), "%") {}
+
 Modulus::Modulus(Node* left, Node* right) : Operator(left, right, "%") {}
 
 double Modulus::evaluate() const {
@@ -135,6 +147,9 @@ double Modulus::evaluate() const {
 }
 
 // Power
+Power::Power(std::unique_ptr<Node> left, std::unique_ptr<Node> right)
+	: Operator(std::move(left), std::move(right), "^") {}
+
 Power::Power(Node* left, Node* right) : Operator(left, right, "^") {}
 
 double Power::evaluate() const {

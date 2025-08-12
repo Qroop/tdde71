@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <vector>
 #include <iterator>
+#include <memory>
 
 #include "Expression.h"
 #include "Calculator.h"
@@ -19,13 +20,9 @@ Expression::Expression(const std::string& expr, mode m) : rootNode(nullptr), cur
 	parse_expression(expr);
 }
 
-Expression::~Expression() {
-	delete rootNode;
-}
+Expression::~Expression() = default;
 
-Expression::Expression(Expression&& other) : rootNode(other.rootNode), curr_mode(other.curr_mode) {
-	other.rootNode = nullptr; // Transfer ownership
-}
+Expression::Expression(Expression&& other) : rootNode(std::move(other.rootNode)), curr_mode(other.curr_mode) {}
 
 Expression& Expression::operator=(Expression&& other) {
 	swap(other);
@@ -90,61 +87,50 @@ void Expression::parse_postfix(const std::string& expr) {
 
 	std::istringstream stream(expr);
 	std::string token;
-	std::stack<Node*> nodes;
+	std::stack<std::unique_ptr<Node>> nodes;
 
-	try {
-		while (stream >> token) {
-			if ( std::all_of( begin(token), end(token), ::isdigit ) ) {
-				nodes.push(new Integer(std::stoi(token)));
+	while (stream >> token) {
+		if ( std::all_of( begin(token), end(token), ::isdigit ) ) {
+			nodes.push(std::make_unique<Integer>(std::stoi(token)));
+		}
+		else if ( isdigit(token.at(0)) ) {
+			nodes.push(std::make_unique<Real>(std::stod(token)));
+		}
+		else if ( isalpha(token.at(0)) ) {
+			// Variables not supported in this assignment; skip/throw if needed.
+			nodes.push(std::make_unique<Integer>(0));
+		}
+		else {
+			if (nodes.size() < 2) {
+				throw std::logic_error("Not enough operands for operator: " + token);
 			}
-			else if ( isdigit(token.at(0)) ) {
-				nodes.push(new Real(std::stod(token)));
-			}
-			else if ( isalpha(token.at(0)) ) {
-				// Variable names could be handled here (currently ignored)
-			}
-			else {
-				if (nodes.size() < 2) {
-					throw std::logic_error("Not enough operands for operator: " + token);
-				}
-				Node* right = nodes.top(); nodes.pop();
-				Node* left = nodes.top(); nodes.pop();
-				if (token == "+") {
-					nodes.push(new Addition(left, right));
-				} else if (token == "-") {
-					nodes.push(new Subtraction(left, right));
-				} else if (token == "*") {
-					nodes.push(new Multiplication(left, right));
-				} else if (token == "/") {
-					nodes.push(new Division(left, right));
-				} else if (token == "^") {
-					nodes.push(new Power(left, right));
-				} else if (token == "%") {
-					nodes.push(new Modulus(left, right));
-				} else {
-					delete left;
-					delete right;
-					throw std::logic_error("Unknown operator: " + token);
-				}
+			auto right = std::move(nodes.top()); nodes.pop();
+			auto left  = std::move(nodes.top()); nodes.pop();
+			if (token == "+") {
+				nodes.push(std::make_unique<Addition>(std::move(left), std::move(right)));
+			} else if (token == "-") {
+				nodes.push(std::make_unique<Subtraction>(std::move(left), std::move(right)));
+			} else if (token == "*") {
+				nodes.push(std::make_unique<Multiplication>(std::move(left), std::move(right)));
+			} else if (token == "/") {
+				nodes.push(std::make_unique<Division>(std::move(left), std::move(right)));
+			} else if (token == "^") {
+				nodes.push(std::make_unique<Power>(std::move(left), std::move(right)));
+			} else if (token == "%") {
+				nodes.push(std::make_unique<Modulus>(std::move(left), std::move(right)));
+			} else {
+				throw std::logic_error("Unknown operator: " + token);
 			}
 		}
-
-		if (nodes.empty()) {
-			throw std::logic_error("Invalid expression: no operands found");
-		}
-		if (nodes.size() != 1) {
-			throw std::logic_error("Invalid expression: too many operands left after parsing");
-		}
-		// Delete old tree if present
-		delete rootNode;
-		rootNode = nodes.top();
-	} catch (...) {
-		while (!nodes.empty()) {
-			delete nodes.top();
-			nodes.pop();
-		}
-		throw;
 	}
+
+	if (nodes.empty()) {
+		throw std::logic_error("Invalid expression: no operands found");
+	}
+	if (nodes.size() != 1) {
+		throw std::logic_error("Invalid expression: too many operands left after parsing");
+	}
+	rootNode = std::move(nodes.top());
 }
 
 void Expression::parse_prefix(const std::string& expr) {

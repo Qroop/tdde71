@@ -30,7 +30,7 @@ private:
 	void parse_postfix(const std::string& expr);
 	void parse_prefix(const std::string& expr);
 
-	Node* rootNode;
+	std::unique_ptr<Node> rootNode;
 	mode curr_mode;
 };
 
