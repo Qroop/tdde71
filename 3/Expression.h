@@ -14,10 +14,12 @@ public:
 	Expression(const std::string& expr, mode m = mode::INFIX);
 	~Expression();
 	Expression(Expression&& other);
+	Expression& operator=(Expression&& other);
 	Expression(const Expression&) = delete;
 	Expression& operator=(const Expression&) = delete;
 
 	void parse_expression(const std::string& expr);
+	void swap(Expression& other);
 
 	std::string to_string() const;
 	std::string evaluate() const;

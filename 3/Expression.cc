@@ -27,6 +27,11 @@ Expression::Expression(Expression&& other) : rootNode(other.rootNode), curr_mode
 	other.rootNode = nullptr; // Transfer ownership
 }
 
+Expression& Expression::operator=(Expression&& other) {
+	swap(other);
+	return *this;
+}
+
 std::string Expression::to_string() const {
 	if (rootNode) {
 		return rootNode->to_string();
@@ -68,6 +73,11 @@ void Expression::parse_expression(const std::string& expr) {
 			parse_prefix(expr);
 			break;
 	}
+}
+
+void Expression::swap(Expression& other) {
+	std::swap(rootNode, other.rootNode);
+	std::swap(curr_mode, other.curr_mode);
 }
 
 void Expression::parse_infix(const std::string& expr) {
