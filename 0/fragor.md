@@ -19,3 +19,4 @@ inputen "spilla över" till den nästa.
 ## Reflektionsfrågor
 - Man får en nolla. Den defaultar till ett värde
 -
+fhweifhwuieh

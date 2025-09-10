@@ -28,8 +28,6 @@ public:
 	bool operator>(const Time& other) const;
 	bool operator>=(const Time& other) const;
 
-	// Stream operators
-
 	bool is_am() const;
 	int get_hour() const;
 	int get_minute() const;
