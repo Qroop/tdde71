@@ -9,12 +9,12 @@
 using namespace std;
 
 struct Racer {
-  string name;
-  int hours;
-  int minutes;
-  int seconds;
+	string name;
+	int hours;
+	int minutes;
+	int seconds;
 
-  Racer() : name(""), hours(0), minutes(0), seconds(0) {}
+	Racer() : name(""), hours(0), minutes(0), seconds(0) {}
 };
 
 const vector<string> split(const string &input) {
@@ -71,7 +71,7 @@ file:
     racer.minutes = stoi(tokens[2]);
     racer.seconds = stoi(tokens[3]);
     data.push_back(racer);
-  }
+  };
   file.close();
 
 rows:
